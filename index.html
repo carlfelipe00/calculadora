@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora</title>
+  <style>
+    :root {
+      --bg: #f1f3f6;
+      --panel: #ffffff;
+      --text: #1d1f23;
+      --muted: #6b7280;
+      --key: #f3f4f6;
+      --key-hover: #e5e7eb;
+      --op: #e0e7ff;
+      --op-hover: #c7d2fe;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111318;
+        --panel: #1c1f26;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --key: #2a2e37;
+        --key-hover: #353a45;
+        --op: #312e81;
+        --op-hover: #3730a3;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--text);
+      padding: 16px;
+    }
+    .calc {
+      width: 100%;
+      max-width: 340px;
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+    .display {
+      text-align: right;
+      padding: 12px 8px 20px;
+      overflow: hidden;
+    }
+    .expr {
+      min-height: 1.4em;
+      font-size: 1rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .result {
+      font-size: 2.6rem;
+      font-weight: 300;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .keys {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    button {
+      height: 60px;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.3rem;
+      background: var(--key);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+    }
+    button:hover { background: var(--key-hover); }
+    button:active { transform: scale(0.96); }
+    button.op { background: var(--op); }
+    button.op:hover { background: var(--op-hover); }
+    button.eq { background: var(--accent); color: #fff; }
+    button.eq:hover { background: var(--accent-hover); }
+  </style>
+</head>
+<body>
+  <div class="calc">
+    <div class="display">
+      <div class="expr" id="expr"></div>
+      <div class="result" id="result">0</div>
+    </div>
+    <div class="keys">
+      <button class="op" data-action="percent">%</button>
+      <button class="op" data-action="ce">CE</button>
+      <button class="op" data-action="clear">C</button>
+      <button class="op" data-action="back">⌫</button>
+
+      <button data-num="7">7</button>
+      <button data-num="8">8</button>
+      <button data-num="9">9</button>
+      <button class="op" data-op="/">÷</button>
+
+      <button data-num="4">4</button>
+      <button data-num="5">5</button>
+      <button data-num="6">6</button>
+      <button class="op" data-op="*">×</button>
+
+      <button data-num="1">1</button>
+      <button data-num="2">2</button>
+      <button data-num="3">3</button>
+      <button class="op" data-op="-">−</button>
+
+      <button data-action="negate">±</button>
+      <button data-num="0">0</button>
+      <button data-action="dot">.</button>
+      <button class="op" data-op="+">+</button>
+
+      <button class="eq" data-action="equals" style="grid-column: span 4;">=</button>
+    </div>
+  </div>
+
+  <script>
+    const exprEl = document.getElementById("expr");
+    const resultEl = document.getElementById("result");
+    const symbols = { "+": "+", "-": "−", "*": "×", "/": "÷" };
+
+    let current = "0";      // número que se está escribiendo
+    let previous = null;    // operando anterior
+    let operator = null;    // operador pendiente
+    let resetNext = false;  // el siguiente dígito reemplaza al actual
+
+    function calculate(a, b, op) {
+      switch (op) {
+        case "+": return a + b;
+        case "-": return a - b;
+        case "*": return a * b;
+        case "/": return b === 0 ? NaN : a / b;
+      }
+    }
+
+    function format(n) {
+      if (!isFinite(n)) return "Error";
+      return String(parseFloat(n.toPrecision(12)));
+    }
+
+    function render() {
+      resultEl.textContent = current;
+      exprEl.textContent = operator ? `${previous} ${symbols[operator]}` : "";
+    }
+
+    function inputNumber(d) {
+      if (current === "Error" || resetNext) {
+        current = d;
+        resetNext = false;
+      } else {
+        current = current === "0" ? d : current + d;
+      }
+    }
+
+    function inputDot() {
+      if (current === "Error" || resetNext) {
+        current = "0.";
+        resetNext = false;
+      } else if (!current.includes(".")) {
+        current += ".";
+      }
+    }
+
+    function setOperator(op) {
+      if (current === "Error") return;
+      if (operator && !resetNext) {
+        current = format(calculate(parseFloat(previous), parseFloat(current), operator));
+        if (current === "Error") { previous = null; operator = null; return; }
+      }
+      previous = current;
+      operator = op;
+      resetNext = true;
+    }
+
+    function equals() {
+      if (!operator || current === "Error") return;
+      const a = previous, b = current;
+      current = format(calculate(parseFloat(a), parseFloat(b), operator));
+      exprEl.textContent = `${a} ${symbols[operator]} ${b} =`;
+      previous = null;
+      operator = null;
+      resetNext = true;
+      resultEl.textContent = current;
+    }
+
+    function handleAction(action) {
+      switch (action) {
+        case "clear":
+          current = "0"; previous = null; operator = null; resetNext = false;
+          break;
+        case "ce":
+          current = "0"; resetNext = false;
+          break;
+        case "back":
+          if (resetNext || current === "Error") break;
+          current = current.length > 1 && !(current.length === 2 && current.startsWith("-"))
+            ? current.slice(0, -1) : "0";
+          break;
+        case "negate":
+          if (current !== "0" && current !== "Error") {
+            current = current.startsWith("-") ? current.slice(1) : "-" + current;
+          }
+          break;
+        case "percent":
+          if (current === "Error") break;
+          // Con operación pendiente: porcentaje del operando anterior (p. ej. 200 + 10% = 220)
+          current = operator
+            ? format(parseFloat(previous) * parseFloat(current) / 100)
+            : format(parseFloat(current) / 100);
+          resetNext = true;
+          break;
+        case "dot":
+          inputDot();
+          break;
+        case "equals":
+          equals();
+          return; // equals ya actualiza la pantalla
+      }
+    }
+
+    document.querySelector(".keys").addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      if (btn.dataset.num) inputNumber(btn.dataset.num);
+      else if (btn.dataset.op) setOperator(btn.dataset.op);
+      else if (btn.dataset.action) {
+        handleAction(btn.dataset.action);
+        if (btn.dataset.action === "equals") return;
+      }
+      render();
+    });
+
+    // Soporte de teclado
+    document.addEventListener("keydown", (e) => {
+      const k = e.key;
+      if (/^[0-9]$/.test(k)) inputNumber(k);
+      else if (k === "." || k === ",") inputDot();
+      else if (["+", "-", "*", "/"].includes(k)) { e.preventDefault(); setOperator(k); }
+      else if (k === "Enter" || k === "=") { e.preventDefault(); equals(); return; }
+      else if (k === "Backspace") handleAction("back");
+      else if (k === "Escape") handleAction("clear");
+      else if (k === "Delete") handleAction("ce");
+      else if (k === "%") handleAction("percent");
+      else return;
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
