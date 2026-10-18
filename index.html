@@ -3,136 +3,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Calculadora final</title>
+  <title>Calculadora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #f1f3f6;
-      --panel: #ffffff;
-      --text: #1d1f23;
-      --muted: #6b7280;
-      --key: #f3f4f6;
-      --key-hover: #e5e7eb;
-      --op: #e0e7ff;
-      --op-hover: #c7d2fe;
-      --accent: #278e37b0;
-      --accent-hover: #16a34a;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111318;
-        --panel: #1c1f26;
-        --text: #f3f4f6;
-        --muted: #9ca3af;
-        --key: #2a2e37;
-        --key-hover: #353a45;
-        --op: #312e81;
-        --op-hover: #3730a3;
-      }
-    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       min-height: 100vh;
       display: grid;
       place-items: center;
-      background: var(--bg);
+      background: #2a2a2a;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      color: var(--text);
       padding: 16px;
     }
+
+    /* ── Cuerpo de la calculadora ── */
     .calc {
       width: 100%;
-      max-width: 340px;
-      background: var(--panel);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      max-width: 300px;
+      background: linear-gradient(160deg, #4a4a50 0%, #35353a 30%, #2d2d32 70%, #28282d 100%);
+      border-radius: 18px 18px 14px 14px;
+      padding: 22px 18px 18px;
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
     }
-    .display {
+
+    /* Marca genérica en la parte superior */
+    .brand {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .brand-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #c8c8cc;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 0.55rem;
+      color: #888;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    /* ── Pantalla LCD ── */
+    .lcd-frame {
+      background: #a8b5a0;
+      border-radius: 6px;
+      padding: 2px;
+      margin: 10px 4px 16px;
+      box-shadow:
+        inset 0 2px 6px rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .lcd {
+      background: linear-gradient(180deg, #b8c8a8 0%, #c4d4b4 40%, #bccaac 100%);
+      border-radius: 4px;
+      padding: 8px 12px 10px;
+      min-height: 68px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .lcd-indicators {
+      display: flex;
+      gap: 12px;
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: transparent;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .lcd-indicators span {
+      transition: color 0.15s;
+    }
+    .lcd-indicators span.active {
+      color: #3a4a32;
+    }
+    .lcd-expr {
+      font-family: "Share Tech Mono", monospace;
+      font-size: 0.85rem;
+      color: #5a6a52;
       text-align: right;
-      padding: 12px 8px 20px;
-      overflow: hidden;
-    }
-    .expr {
-      min-height: 1.4em;
-      font-size: 1rem;
-      color: var(--muted);
+      min-height: 1.1em;
       white-space: nowrap;
     }
-    .result {
-      font-size: 2.6rem;
-      font-weight: 300;
+    .lcd-result {
+      font-family: "Share Tech Mono", monospace;
+      font-size: 2.5rem;
+      color: #1a2a12;
+      text-align: right;
+      line-height: 1.1;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      letter-spacing: 2px;
     }
+
+    /* ── Teclado ── */
     .keys {
       display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .keys-main {
+      display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
+
+    /* Botón base */
     button {
-      height: 60px;
+      height: 42px;
       border: none;
-      border-radius: 14px;
-      font-size: 1.3rem;
-      background: var(--key);
-      color: var(--text);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s, transform 0.05s;
+      position: relative;
+      transition: filter 0.1s, transform 0.05s;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
-    button:hover { background: var(--key-hover); }
-    button:active { transform: scale(0.96); }
-    button.op { background: var(--op); }
-    button.op:hover { background: var(--op-hover); }
-    button.eq { background: var(--accent); color: #fff; }
-    button.eq:hover { background: var(--accent-hover); }
+    button:active {
+      transform: scale(0.95);
+      filter: brightness(0.85);
+    }
+
+    /* Botones oscuros (números, operaciones) */
+    .btn-dark {
+      background: linear-gradient(180deg, #3a3a3f 0%, #2a2a2f 100%);
+      color: #e8e8ec;
+      box-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .btn-dark:hover {
+      filter: brightness(1.15);
+    }
+
+    /* Botones rojos (AC, C) */
+    .btn-red {
+      background: linear-gradient(180deg, #b83030 0%, #8f2020 100%);
+      color: #fff;
+      box-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 130, 130, 0.2);
+    }
+    .btn-red:hover {
+      filter: brightness(1.1);
+    }
+
+    /* Botón grises claros (memoria, funciones) */
+    .btn-gray {
+      background: linear-gradient(180deg, #5a5a62 0%, #48484f 100%);
+      color: #d0d0d4;
+      font-size: 0.78rem;
+      box-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .btn-gray:hover {
+      filter: brightness(1.15);
+    }
+
+    /* 0 ocupa 2 columnas */
+    .btn-wide {
+      grid-column: span 2;
+    }
+
+    /* Separador visual entre filas de funciones y números */
+    .spacer {
+      height: 6px;
+    }
   </style>
 </head>
 <body>
   <div class="calc">
-    <div class="display">
-      <div class="expr" id="expr"></div>
-      <div class="result" id="result">0</div>
+    <!-- Marca -->
+    <div class="brand">
+      <div class="brand-name">Calculator</div>
+      <div class="brand-sub">Electronic Calculator</div>
     </div>
+
+    <!-- Pantalla LCD -->
+    <div class="lcd-frame">
+      <div class="lcd">
+        <div class="lcd-indicators">
+          <span id="ind-minus">MINUS</span>
+          <span id="ind-memory">MEMORY</span>
+          <span id="ind-error">ERROR</span>
+        </div>
+        <div class="lcd-expr" id="expr"></div>
+        <div class="lcd-result" id="result">0</div>
+      </div>
+    </div>
+
+    <!-- Fila de funciones: MRC, M-, M+, √, OFF(AC) -->
     <div class="keys">
-      <button class="op" data-action="percent">%</button>
-      <button class="op" data-action="ce">CE</button>
-      <button class="op" data-action="clear">C</button>
-      <button class="op" data-action="back">⌫</button>
+      <button class="btn-gray" data-action="mrc">MRC</button>
+      <button class="btn-gray" data-action="m-">M−</button>
+      <button class="btn-gray" data-action="m+">M+</button>
+      <button class="btn-gray" data-action="sqrt">√</button>
+      <button class="btn-gray" data-action="off">OFF</button>
+    </div>
 
-      <button data-num="7">7</button>
-      <button data-num="8">8</button>
-      <button data-num="9">9</button>
-      <button class="op" data-op="/">÷</button>
+    <!-- Fila AC, C, ±, % -->
+    <div class="keys-main">
+      <button class="btn-red" data-action="clear">AC</button>
+      <button class="btn-red" data-action="ce">C</button>
+      <button class="btn-dark" data-action="negate">±</button>
+      <button class="btn-dark" data-action="percent">%</button>
+    </div>
 
-      <button data-num="4">4</button>
-      <button data-num="5">5</button>
-      <button data-num="6">6</button>
-      <button class="op" data-op="*">×</button>
+    <div class="spacer"></div>
 
-      <button data-num="1">1</button>
-      <button data-num="2">2</button>
-      <button data-num="3">3</button>
-      <button class="op" data-op="-">−</button>
+    <!-- Números y operaciones -->
+    <div class="keys-main">
+      <button class="btn-dark" data-num="7">7</button>
+      <button class="btn-dark" data-num="8">8</button>
+      <button class="btn-dark" data-num="9">9</button>
+      <button class="btn-dark" data-op="/">÷</button>
 
-      <button data-action="negate">±</button>
-      <button data-num="0">0</button>
-      <button data-action="dot">.</button>
-      <button class="op" data-op="+">+</button>
+      <button class="btn-dark" data-num="4">4</button>
+      <button class="btn-dark" data-num="5">5</button>
+      <button class="btn-dark" data-num="6">6</button>
+      <button class="btn-dark" data-op="*">×</button>
 
-      <button class="eq" data-action="equals" style="grid-column: span 4;">=</button>
+      <button class="btn-dark" data-num="1">1</button>
+      <button class="btn-dark" data-num="2">2</button>
+      <button class="btn-dark" data-num="3">3</button>
+      <button class="btn-dark" data-op="-">−</button>
+
+      <button class="btn-dark btn-wide" data-num="0">0</button>
+      <button class="btn-dark" data-action="dot">.</button>
+      <button class="btn-dark" data-action="equals">=</button>
+      <button class="btn-dark" data-op="+">+</button>
     </div>
   </div>
 
   <script>
-    const exprEl = document.getElementById("expr");
+    const exprEl  = document.getElementById("expr");
     const resultEl = document.getElementById("result");
+    const indMinus  = document.getElementById("ind-minus");
+    const indMemory = document.getElementById("ind-memory");
+    const indError  = document.getElementById("ind-error");
     const symbols = { "+": "+", "-": "−", "*": "×", "/": "÷" };
 
-    let current = "0";      // número que se está escribiendo
-    let previous = null;    // operando anterior
-    let operator = null;    // operador pendiente
-    let resetNext = false;  // el siguiente dígito reemplaza al actual
+    let current   = "0";
+    let previous  = null;
+    let operator  = null;
+    let resetNext = false;
+    let memory    = 0;
 
     function calculate(a, b, op) {
       switch (op) {
@@ -145,12 +272,21 @@
 
     function format(n) {
       if (!isFinite(n)) return "Error";
-      return String(parseFloat(n.toPrecision(12)));
+      const s = parseFloat(n.toPrecision(12));
+      return String(s);
+    }
+
+    function updateIndicators() {
+      const val = parseFloat(current);
+      indMinus.classList.toggle("active", isFinite(val) && val < 0);
+      indMemory.classList.toggle("active", memory !== 0);
+      indError.classList.toggle("active", current === "Error");
     }
 
     function render() {
       resultEl.textContent = current;
       exprEl.textContent = operator ? `${previous} ${symbols[operator]}` : "";
+      updateIndicators();
     }
 
     function inputNumber(d) {
@@ -158,6 +294,7 @@
         current = d;
         resetNext = false;
       } else {
+        if (current.replace("-", "").replace(".", "").length >= 8) return;
         current = current === "0" ? d : current + d;
       }
     }
@@ -191,6 +328,7 @@
       operator = null;
       resetNext = true;
       resultEl.textContent = current;
+      updateIndicators();
     }
 
     function handleAction(action) {
@@ -201,19 +339,12 @@
         case "ce":
           current = "0"; resetNext = false;
           break;
-        case "back":
-          if (resetNext || current === "Error") break;
-          current = current.length > 1 && !(current.length === 2 && current.startsWith("-"))
-            ? current.slice(0, -1) : "0";
-          break;
         case "negate":
-          if (current !== "0" && current !== "Error") {
+          if (current !== "0" && current !== "Error")
             current = current.startsWith("-") ? current.slice(1) : "-" + current;
-          }
           break;
         case "percent":
           if (current === "Error") break;
-          // Con operación pendiente: porcentaje del operando anterior (p. ej. 200 + 10% = 220)
           current = operator
             ? format(parseFloat(previous) * parseFloat(current) / 100)
             : format(parseFloat(current) / 100);
@@ -224,14 +355,41 @@
           break;
         case "equals":
           equals();
-          return; // equals ya actualiza la pantalla
+          return;
+        case "sqrt":
+          if (current === "Error") break;
+          { const v = parseFloat(current);
+            current = v < 0 ? "Error" : format(Math.sqrt(v)); }
+          resetNext = true;
+          break;
+        case "m+":
+          memory += parseFloat(current) || 0;
+          resetNext = true;
+          break;
+        case "m-":
+          memory -= parseFloat(current) || 0;
+          resetNext = true;
+          break;
+        case "mrc":
+          if (current === format(memory) && !resetNext) {
+            // Segundo toque: borrar memoria
+            memory = 0;
+          } else {
+            current = format(memory);
+          }
+          resetNext = true;
+          break;
+        case "off":
+          current = "0"; previous = null; operator = null; resetNext = false; memory = 0;
+          break;
       }
     }
 
-    document.querySelector(".keys").addEventListener("click", (e) => {
+    // Delegación de eventos
+    document.querySelector(".calc").addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
-      if (btn.dataset.num) inputNumber(btn.dataset.num);
+      if (btn.dataset.num)    inputNumber(btn.dataset.num);
       else if (btn.dataset.op) setOperator(btn.dataset.op);
       else if (btn.dataset.action) {
         handleAction(btn.dataset.action);
@@ -240,14 +398,18 @@
       render();
     });
 
-    // Soporte de teclado
+    // Teclado
     document.addEventListener("keydown", (e) => {
       const k = e.key;
       if (/^[0-9]$/.test(k)) inputNumber(k);
       else if (k === "." || k === ",") inputDot();
       else if (["+", "-", "*", "/"].includes(k)) { e.preventDefault(); setOperator(k); }
       else if (k === "Enter" || k === "=") { e.preventDefault(); equals(); return; }
-      else if (k === "Backspace") handleAction("back");
+      else if (k === "Backspace") {
+        if (!resetNext && current !== "Error")
+          current = current.length > 1 && !(current.length === 2 && current.startsWith("-"))
+            ? current.slice(0, -1) : "0";
+      }
       else if (k === "Escape") handleAction("clear");
       else if (k === "Delete") handleAction("ce");
       else if (k === "%") handleAction("percent");
